@@ -11,7 +11,6 @@ router_client = Router()
 @router_client.message(F.text == '/start')
 async def start(message: Message):
     await update_BD(message, "/start")
-    # открываем базу данных
     base = sqlite3.connect("database.db")
     cur = base.cursor()
     base.execute("CREATE TABLE IF NOT EXISTS registration_data(id PRIMARY KEY, fullname TEXT, username TEXT, time_register TEXT, last_time TEXT, last_action TEXT, count INTEGER, active TEXT)")
@@ -91,7 +90,7 @@ async def digital_departments(callback: CallbackQuery):
         InlineKeyboardButton(text='8 модуль', callback_data='8 модуль')],
         [InlineKeyboardButton(text='Меню', callback_data='Меню')]
         ])
-    await callback.message.edit_text("1 модуль - основы программирования на Python\n2 модуль - основы алгоритмизации\n3 модуль - базы данных и реляционная алгебра\n4 модуль - cтандартные библиотеки Python\n5 модуль - моделирование бизнес-процессов\n6 модуль - разработка баз данных\n7.1 модуль - анализ данных\n7.2 модуль - UI/UX-дизайн\n7.3 модуль - Основы веб-разработки\n8 модуль - практика в профильной сфере", reply_markup=keyboard)
+    await callback.message.edit_text("1 модуль - основы программирования на Python", reply_markup=keyboard)
     await callback.answer()
 
 
