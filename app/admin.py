@@ -1,18 +1,19 @@
-from aiogram import Router, F
+from aiogram import Router, Bot, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from config import ADMIN_API
-from other import update_BD
 import sqlite3
+from other import update_BD
+from config import ADMIN_API,  TOKEN_WORK_BOT
 
 
 router_admin = Router()
+bot = Bot(token=TOKEN_WORK_BOT)
 
 
 @router_admin.message(F.text == '/info')
 async def info(message: Message):
     if message.from_user.id == ADMIN_API:
         await message.answer(
-            "Курс-хаб: https://e.vyatsu.ru/course/view.php?id=25628",
+            "Курс-хаб: https://e.vyatsu.ru/course/view.php?id=29027",
             disable_web_page_preview=True,
         )
         await message.answer(
@@ -54,6 +55,59 @@ async def info(message: Message):
     else:
         await message.answer("Недостаточно прав")
 
+
+@router_admin.message(F.text.startswith("/add"))
+async def add(message: Message):
+    if message.from_user.id == ADMIN_API:
+        id_user = int(message.text.split()[1])
+        base = sqlite3.connect("database.db")
+        cur = base.cursor()
+        id_user_from_db = cur.execute(f"SELECT id FROM registration_data WHERE id={id_user}").fetchone()
+        if id_user_from_db != None:
+            cur.execute("UPDATE registration_data SET active==? WHERE id=?",("2", id_user))
+            base.commit()
+            await message.answer("Успешно")
+        else:
+            await message.answer("Такого пользователя нет")
+    else:
+        await message.answer("Недостаточно прав")
+        
+
+@router_admin.message(F.text.startswith("/remove"))
+async def remove(message: Message):
+    if message.from_user.id == ADMIN_API:
+        id_user = int(message.text.split()[1])
+        base = sqlite3.connect("database.db")
+        cur = base.cursor()
+        id_user_from_db = cur.execute(f"SELECT id FROM registration_data WHERE id={id_user}").fetchone()
+        if id_user_from_db != None:
+            cur.execute("UPDATE registration_data SET active==? WHERE id=?",("1", id_user))
+            base.commit()
+            await message.answer("Успешно")
+        else:
+            await message.answer("Такого пользователя нет")
+    else:
+        await message.answer("Недостаточно прав")
+        
+
+@router_admin.message(F.text.startswith("/message"))
+async def remove(message: Message):
+    if message.from_user.id == ADMIN_API:
+        message_text = message.text[8:]
+        base = sqlite3.connect("database.db")
+        cur = base.cursor()
+        user_from_db = cur.execute(f"SELECT id FROM registration_data").fetchall()
+        for val in user_from_db:
+            id_user = int(val[0])
+            try:
+                await bot.send_message(id_user, message_text)
+            except:
+                cur.execute("UPDATE registration_data SET active==? WHERE id=?",("0", id_user))
+                base.commit()
+        await message.answer("Рассылка прошла успешно")
+    else:
+        await message.answer("Недостаточно прав")
+        
     
 @router_admin.message(F.document)
 async def get_document(message: Message):
