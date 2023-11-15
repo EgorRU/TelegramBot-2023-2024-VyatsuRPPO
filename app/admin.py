@@ -1,7 +1,6 @@
 from aiogram import Router, Bot, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message
 import sqlite3
-from other import update_BD
 from config import ADMIN_API,  TOKEN_WORK_BOT
 
 
